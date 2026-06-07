@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 import io
 import pandas as pd
-from app import database, models, schemas, auth, ml_model
+from app import database, models, schemas, auth, ml_model, config
 
 router = APIRouter(tags=["Career & AI Prediction"])
 
@@ -106,6 +106,93 @@ CAREER_PROFILES = {
     }
 }
 
+def call_gemini_api(cgpa: float, skills: str, interests: str, api_key: str) -> List[Dict[str, Any]]:
+    import urllib.request
+    import json
+    import ssl
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    
+    prompt = f"""
+    You are an expert AI Career Guidance Counselor. 
+    Analyze this student's profile:
+    - CGPA: {cgpa} / 10.0
+    - Skills: {skills}
+    - Interests: {interests}
+
+    You must analyze and evaluate their suitability for the following 8 tech roles:
+    1. Software Engineer
+    2. Data Scientist
+    3. AI Engineer
+    4. Data Analyst
+    5. Cloud Engineer
+    6. Cybersecurity Analyst
+    7. Full Stack Developer
+    8. DevOps Engineer
+
+    For each role:
+    1. Calculate a personalized "match_score" (float between 0 and 100) based on how well their current CGPA, skills, and interests match. Be realistic.
+    2. Suggest a few "recommended_skills" (comma separated) that the student is missing or should learn next.
+    3. Generate a structured step-by-step "roadmap" (as a short plain-text list with newlines) guiding them on how to transition into this career.
+
+    IMPORTANT: You must respond ONLY with a valid, raw JSON array of 8 objects. Do not wrap the JSON in Markdown code blocks (like ```json). Just start with '[' and end with ']'.
+    JSON Schema:
+    [
+      {{
+        "career_path": "Software Engineer",
+        "match_score": 85.5,
+        "recommended_skills": "System Design, Docker, FastAPI",
+        "roadmap": "1. Study DSA foundations\\n2. Learn FastAPI and backend architecture\\n3. Build sample projects"
+      }},
+      ...
+    ]
+    """
+
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }],
+        "generationConfig": {
+            "responseMimeType": "application/json"
+        }
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+    with urllib.request.urlopen(req, context=ctx, timeout=12) as response:
+        res_data = response.read().decode("utf-8")
+        res_json = json.loads(res_data)
+        text_content = res_json["candidates"][0]["content"]["parts"][0]["text"]
+        
+        # Parse text content which should be raw JSON array
+        recommendations = json.loads(text_content.strip())
+        
+        # Quick validation
+        for rec in recommendations:
+            if not isinstance(rec.get("match_score"), (int, float)):
+                rec["match_score"] = 50.0
+            else:
+                rec["match_score"] = float(rec["match_score"])
+            if not rec.get("career_path"):
+                rec["career_path"] = "Software Engineer"
+            if not rec.get("recommended_skills"):
+                rec["recommended_skills"] = "N/A"
+            if not rec.get("roadmap"):
+                rec["roadmap"] = "Step 1: Continuous learning."
+                
+        # Sort recommendations
+        recommendations = sorted(recommendations, key=lambda x: x.get("match_score", 0), reverse=True)
+        return recommendations
+
 # 1. Prediction Endpoints (registers both /predict and /api/predict)
 @router.post("/predict", response_model=schemas.PredictionResponse)
 @router.post("/api/predict", response_model=schemas.PredictionResponse)
@@ -151,6 +238,32 @@ def get_career_guidance(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Student profile not found. Complete your profile before requesting career guidance."
         )
+
+    # 1. Attempt Gemini AI career counselor recommendation if key is present
+    if config.GEMINI_API_KEY:
+        try:
+            print("Gemini API Key detected. Requesting AI-Powered career guidance...")
+            recommendations = call_gemini_api(
+                cgpa=student.cgpa,
+                skills=student.skills or "None entered",
+                interests=student.interests or "None entered",
+                api_key=config.GEMINI_API_KEY
+            )
+            if recommendations:
+                # Store the top recommendation to DB
+                top_rec = recommendations[0]
+                db_rec = models.CareerRecommendation(
+                    student_id=student.id,
+                    career_path=top_rec["career_path"],
+                    match_score=top_rec["match_score"],
+                    recommended_skills=top_rec["recommended_skills"],
+                    roadmap=top_rec["roadmap"]
+                )
+                db.add(db_rec)
+                db.commit()
+                return recommendations
+        except Exception as e:
+            print(f"Gemini API call failed, falling back to rule-based engine. Error: {e}")
 
     # Clean student skills and interests
     student_skills = [s.strip().lower() for s in student.skills.split(",") if s.strip()] if student.skills else []

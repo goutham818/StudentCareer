@@ -1,0 +1,22 @@
+# Python virtual environment
+backend/venv/
+backend/.venv/
+
+# Environment Variables
+backend/.env
+
+# Databases & Storage files
+backend/*.db
+backend/*.db-journal
+backend/storage/model.pkl
+
+# Pycache and pyc files
+__pycache__/
+*.py[cod]
+*$py.class
+backend/app/__pycache__/
+backend/app/routers/__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db

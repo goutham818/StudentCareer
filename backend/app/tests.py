@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Set mock env variables for testing
-os.environ["DATABASE_URL"] = "postgresql://postgres:password@localhost:5432/studentcareer"
+os.environ["DATABASE_URL"] = "sqlite:///./test.db"
 os.environ["JWT_SECRET_KEY"] = "test_secret_key_which_is_thirty_two_chars_long"
 os.environ["ENV"] = "testing"
 
@@ -69,6 +69,14 @@ def run_tests():
     print("\n==================================================")
     print("          ALL TEST SUITES EXECUTED                ")
     print("==================================================")
+
+    # Clean up test database file
+    try:
+        import os
+        if os.path.exists("test.db"):
+            os.remove("test.db")
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     run_tests()
