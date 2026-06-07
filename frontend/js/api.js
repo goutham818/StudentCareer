@@ -6,7 +6,7 @@ if (!API_BASE_URL) {
         API_BASE_URL = "http://127.0.0.1:8000";
     } else {
         // Fallback for production. Users can update this by clicking the logo in the sidebar
-        API_BASE_URL = "https://studentcareer-production.up.railway.app"; 
+        API_BASE_URL = "https://goutham818-studentcareer-backend.hf.space"; 
     }
     localStorage.setItem("API_BASE_URL", API_BASE_URL);
 }
