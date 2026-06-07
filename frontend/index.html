@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudentCareer - AI-Based Analytics & Guidance System</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- MAIN APP ROUTER WRAPPER -->
+    <div id="app-wrapper" class="app-layout hidden">
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="app-sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-graduation-cap-gradient fa-graduation-cap logo-icon"></i>
+                <span class="logo-text">Student<span class="accent-text">Career</span></span>
+            </div>
+
+            <div class="user-profile-summary">
+                <div class="profile-avatar">
+                    <span id="user-avatar-initials">U</span>
+                </div>
+                <div class="profile-details">
+                    <h4 id="user-display-name">Loading...</h4>
+                    <p id="user-display-role">Student</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-target="dashboard">
+                        <a href="#/dashboard">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-target="analytics">
+                        <a href="#/analytics">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item student-only" data-target="guidance">
+                        <a href="#/guidance">
+                            <i class="fa-solid fa-compass"></i>
+                            <span>Career & AI Guidance</span>
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" data-target="students">
+                        <a href="#/students">
+                            <i class="fa-solid fa-users"></i>
+                            <span>Student Profiles</span>
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" data-target="upload">
+                        <a href="#/upload">
+                            <i class="fa-solid fa-file-upload"></i>
+                            <span>Upload Dataset</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="btn-theme-toggle" class="btn-icon-toggle" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="btn-logout" class="btn-logout-sidebar" title="Log Out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <main class="app-main-content">
+            <header class="app-header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard</h1>
+                    <p id="page-subtitle" class="text-secondary">System Overview</p>
+                </div>
+                <div class="header-right">
+                    <span id="current-date-badge" class="date-badge">Sunday, June 7, 2026</span>
+                </div>
+            </header>
+
+            <div class="content-body">
+                
+                <!-- VIEW 1: DASHBOARD VIEW -->
+                <section id="view-dashboard" class="page-view">
+                    <!-- Metrics Cards Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card glassmorphic">
+                            <div class="metric-icon bg-violet">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Total Students</span>
+                                <h3 id="stat-total-students" class="metric-value">--</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card glassmorphic">
+                            <div class="metric-icon bg-emerald">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Average CGPA</span>
+                                <h3 id="stat-average-cgpa" class="metric-value">--</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card glassmorphic">
+                            <div class="metric-icon bg-blue">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Average Attendance</span>
+                                <h3 id="stat-average-attendance" class="metric-value">--</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card glassmorphic">
+                            <div class="metric-icon bg-amber">
+                                <i class="fa-solid fa-briefcase"></i>
+                            </div>
+                            <div class="metric-info">
+                                <span class="metric-label">Placement Readiness</span>
+                                <h3 id="stat-placement-readiness" class="metric-value">--</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Lists Grid -->
+                    <div class="dashboard-lists-grid">
+                        <!-- Top Performers Card -->
+                        <div class="list-card glassmorphic">
+                            <div class="list-card-header">
+                                <h3><i class="fa-solid fa-trophy text-amber"></i> Top Performers</h3>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="dashboard-list-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Roll No</th>
+                                            <th>Name</th>
+                                            <th>Department</th>
+                                            <th>CGPA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="top-performers-tbody">
+                                        <tr><td colspan="4" class="text-center">Loading performers...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- At-Risk Students Card -->
+                        <div class="list-card glassmorphic">
+                            <div class="list-card-header">
+                                <h3><i class="fa-solid fa-triangle-exclamation text-rose"></i> At-Risk Students</h3>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="dashboard-list-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Roll No</th>
+                                            <th>Name</th>
+                                            <th>CGPA</th>
+                                            <th>Risk Factor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="at-risk-tbody">
+                                        <tr><td colspan="4" class="text-center">Loading at-risk students...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: ANALYTICS VIEW -->
+                <section id="view-analytics" class="page-view hidden">
+                    <div class="view-actions-bar">
+                        <button id="btn-export-pdf" class="btn btn-secondary">
+                            <i class="fa-solid fa-file-pdf"></i> Export PDF Report
+                        </button>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <!-- Chart 1: CGPA Range -->
+                        <div class="chart-card glassmorphic">
+                            <h3>CGPA Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-cgpa-dist"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Chart 2: Attendance Range -->
+                        <div class="chart-card glassmorphic">
+                            <h3>Attendance Ranges</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-attendance-dist"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: Department Performance -->
+                        <div class="chart-card glassmorphic colspan-2">
+                            <h3>Department-wise Academic Analysis</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-department-analysis"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 4: Semester Analysis -->
+                        <div class="chart-card glassmorphic colspan-2">
+                            <h3>Semester-wise Performance Trend</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-semester-analysis"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: CAREER & AI GUIDANCE VIEW -->
+                <section id="view-guidance" class="page-view hidden">
+                    <div class="guidance-layout">
+                        <!-- Left Panel: AI Predictor -->
+                        <div class="guidance-panel-left glassmorphic">
+                            <div class="panel-header">
+                                <h3><i class="fa-solid fa-brain text-violet"></i> AI Academic Performance Predictor</h3>
+                                <p class="text-secondary text-xs">Enter performance details to predict student category using the Random Forest model.</p>
+                            </div>
+                            
+                            <form id="form-performance-predict" class="interactive-form">
+                                <div class="form-group">
+                                    <label for="predict-attendance">Attendance (%)</label>
+                                    <input type="number" id="predict-attendance" min="0" max="100" step="0.1" required placeholder="e.g. 85.5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="predict-internal-marks">Internal Marks (out of 100)</label>
+                                    <input type="number" id="predict-internal-marks" min="0" max="100" step="0.1" required placeholder="e.g. 78">
+                                </div>
+                                <div class="form-group">
+                                    <label for="predict-previous-cgpa">Previous Semester CGPA (out of 10.0)</label>
+                                    <input type="number" id="predict-previous-cgpa" min="0" max="10.0" step="0.01" required placeholder="e.g. 8.2">
+                                </div>
+                                <div class="form-group">
+                                    <label for="predict-assignment-score">Assignment Score (out of 100)</label>
+                                    <input type="number" id="predict-assignment-score" min="0" max="100" step="0.1" required placeholder="e.g. 90">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Predict Performance Category
+                                </button>
+                            </form>
+
+                            <!-- Prediction Result Display -->
+                            <div id="prediction-result" class="prediction-result-box hidden">
+                                <h4>Predicted Performance Category</h4>
+                                <div id="predicted-badge" class="badge-prediction">Good</div>
+                                <p id="prediction-explainer" class="text-secondary text-xs mt-2"></p>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Career Matching -->
+                        <div class="guidance-panel-right glassmorphic">
+                            <div class="panel-header">
+                                <h3><i class="fa-solid fa-route text-emerald"></i> Custom Career Path Recommender</h3>
+                                <p class="text-secondary text-xs">Matching your CGPA, Skills, and Interests against industry roles.</p>
+                            </div>
+
+                            <div class="career-action-zone">
+                                <button id="btn-generate-guidance" class="btn btn-emerald btn-block">
+                                    <i class="fa-solid fa-compass"></i> Calculate Career Match Scores & Roadmaps
+                                </button>
+                            </div>
+
+                            <div id="career-recommendations-list" class="career-cards-container mt-4">
+                                <div class="no-data-placeholder">
+                                    <i class="fa-solid fa-road"></i>
+                                    <p>Click "Calculate Career Match Scores" to analyze recommendation profiles.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: STUDENT PROFILES VIEW (Admin only) -->
+                <section id="view-students" class="page-view hidden">
+                    <div class="view-actions-bar">
+                        <div class="search-filter-wrapper">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="student-search-input" placeholder="Search by name or roll number...">
+                            </div>
+                            <div class="filter-box">
+                                <select id="student-dept-filter">
+                                    <option value="">All Departments</option>
+                                    <!-- Dynamic options -->
+                                </select>
+                            </div>
+                        </div>
+                        <button id="btn-add-student-modal" class="btn btn-primary">
+                            <i class="fa-solid fa-user-plus"></i> Add Student
+                        </button>
+                    </div>
+
+                    <!-- Students Table -->
+                    <div class="table-container-card glassmorphic">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Roll Number</th>
+                                        <th>Name</th>
+                                        <th>Department</th>
+                                        <th>Semester</th>
+                                        <th>CGPA</th>
+                                        <th>Attendance</th>
+                                        <th>Skills</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-table-tbody">
+                                    <tr><td colspan="8" class="text-center">Loading students profile list...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: UPLOAD DATASET VIEW (Admin only) -->
+                <section id="view-upload" class="page-view hidden">
+                    <div class="upload-layout">
+                        <!-- CSV Drop Zone -->
+                        <div class="upload-card glassmorphic">
+                            <h3><i class="fa-solid fa-file-csv text-violet"></i> Upload Student Performance Dataset</h3>
+                            <p class="text-secondary text-sm mb-4">Upload a CSV file containing student performance records. The system will store records, update analytics, and automatically retrain the Random Forest AI model.</p>
+                            
+                            <form id="form-csv-upload" class="csv-upload-form">
+                                <div class="drag-drop-zone" id="csv-drag-zone">
+                                    <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+                                    <p class="drag-text">Drag & drop your CSV file here or <span>browse</span></p>
+                                    <input type="file" id="csv-file-input" accept=".csv" class="hidden-file-input">
+                                </div>
+                                <div id="selected-file-badge" class="selected-file-badge hidden">
+                                    <i class="fa-solid fa-file-circle-check"></i>
+                                    <span id="selected-file-name">filename.csv</span>
+                                    <button type="button" id="btn-clear-file" class="btn-clear-file">&times;</button>
+                                </div>
+                                <button type="submit" id="btn-upload-submit" class="btn btn-primary btn-block mt-4" disabled>
+                                    <i class="fa-solid fa-upload"></i> Upload & Retrain AI Models
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Template Explainer -->
+                        <div class="upload-sidebar glassmorphic">
+                            <h3>Required CSV Columns</h3>
+                            <p class="text-secondary text-xs mb-3">Your uploaded CSV must include these exact column names. Any mismatch will fail validation.</p>
+                            
+                            <div class="csv-schema-list">
+                                <div class="schema-item"><code>name</code> <span class="type-badge">Text</span> <span class="desc">Student Name</span></div>
+                                <div class="schema-item"><code>roll_number</code> <span class="type-badge">Text (Unique)</span> <span class="desc">e.g. CS2026005</span></div>
+                                <div class="schema-item"><code>department</code> <span class="type-badge">Text</span> <span class="desc">e.g. Information Technology</span></div>
+                                <div class="schema-item"><code>semester</code> <span class="type-badge">Int</span> <span class="desc">Semester level (e.g. 6)</span></div>
+                                <div class="schema-item"><code>cgpa</code> <span class="type-badge">Float</span> <span class="desc">Current Cumulative GPA (0-10)</span></div>
+                                <div class="schema-item"><code>attendance</code> <span class="type-badge">Float</span> <span class="desc">Attendance Percentage (0-100)</span></div>
+                                <div class="schema-item"><code>skills</code> <span class="type-badge">Text</span> <span class="desc">Comma separated skills list</span></div>
+                                <div class="schema-item"><code>interests</code> <span class="type-badge">Text</span> <span class="desc">Comma separated interests list</span></div>
+                                <div class="schema-item"><code>internal_marks</code> <span class="type-badge">Float</span> <span class="desc">Marks in internal exams (0-100)</span></div>
+                                <div class="schema-item"><code>assignment_score</code> <span class="type-badge">Float</span> <span class="desc">Assignment average score (0-100)</span></div>
+                                <div class="schema-item"><code>previous_cgpa</code> <span class="type-badge">Float</span> <span class="desc">Prior semester CGPA (0-10)</span></div>
+                                <div class="schema-item"><code>category</code> <span class="type-badge">Text</span> <span class="desc">Excellent, Good, Average, Needs Improvement</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- VIEW 6: LOGIN VIEW (Shown first when user is unauthenticated) -->
+    <div id="login-wrapper" class="login-layout">
+        <div class="login-card glassmorphic animate-fade-in">
+            <div class="login-header">
+                <i class="fa-solid fa-graduation-cap logo-icon-large"></i>
+                <h2>Welcome to Student<span class="accent-text">Career</span></h2>
+                <p class="text-secondary text-sm">AI-Based Analytics & Guidance System</p>
+            </div>
+            
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="login-username" required placeholder="Enter your username">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="login-password" required placeholder="Enter your password">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span>Log In</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p class="text-secondary text-xs">Demo Credentials:</p>
+                <p class="text-secondary text-xs">Admin: <code>admin</code> / <code>admin123</code></p>
+                <p class="text-secondary text-xs">Student: <code>student</code> / <code>student123</code></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL: ADD / EDIT STUDENT PROFILE -->
+    <div id="student-modal" class="modal-wrapper hidden">
+        <div class="modal-card glassmorphic animate-slide-up">
+            <div class="modal-header">
+                <h3 id="student-modal-title">Add Student Profile</h3>
+                <button id="btn-close-student-modal" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-student-save">
+                    <input type="hidden" id="student-modal-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="student-name">Full Name</label>
+                            <input type="text" id="student-name" required placeholder="e.g. Alex Mercer">
+                        </div>
+                        <div class="form-group">
+                            <label for="student-roll">Roll Number</label>
+                            <input type="text" id="student-roll" required placeholder="e.g. CS2026001">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="student-dept">Department</label>
+                            <select id="student-dept" required>
+                                <option value="">Select Department</option>
+                                <!-- Dynamic -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="student-semester">Semester</label>
+                            <input type="number" id="student-semester" min="1" max="10" required placeholder="e.g. 6">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="student-cgpa">CGPA (0 - 10.0)</label>
+                            <input type="number" id="student-cgpa" min="0" max="10.0" step="0.01" required placeholder="e.g. 8.75">
+                        </div>
+                        <div class="form-group">
+                            <label for="student-attendance">Attendance (%)</label>
+                            <input type="number" id="student-attendance" min="0" max="100" step="0.1" required placeholder="e.g. 91.5">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student-skills">Skills (Comma-separated)</label>
+                        <input type="text" id="student-skills" placeholder="e.g. Python, SQL, HTML, CSS, JavaScript">
+                        <small class="text-xs text-secondary mt-1">Separate skills with commas.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student-interests">Interests (Comma-separated)</label>
+                        <input type="text" id="student-interests" placeholder="e.g. Web Development, Machine Learning, DevOps">
+                        <small class="text-xs text-secondary mt-1">Separate interests with commas.</small>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" id="btn-cancel-student-modal" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular JS App scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/students.js"></script>
+    <script src="js/career.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

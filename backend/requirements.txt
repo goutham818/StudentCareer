@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg[binary]
+pydantic
+scikit-learn
+pandas
+numpy
+python-dotenv
+passlib[bcrypt]
+python-multipart
+PyJWT==2.10.1
