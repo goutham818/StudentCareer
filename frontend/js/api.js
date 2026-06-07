@@ -1,6 +1,12 @@
 // Dynamic backend URL resolver
 let API_BASE_URL = localStorage.getItem("API_BASE_URL");
 
+// Self-healing check: if the browser has cached the old Railway URL, clear it to force the Hugging Face update
+if (API_BASE_URL && (API_BASE_URL.includes("railway.app") || API_BASE_URL.includes("studentcareer-production"))) {
+    API_BASE_URL = null;
+    localStorage.removeItem("API_BASE_URL");
+}
+
 if (!API_BASE_URL) {
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         API_BASE_URL = "http://127.0.0.1:8000";
